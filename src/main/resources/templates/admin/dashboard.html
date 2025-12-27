@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <a href="/logout">Logout</a>
+
+    <h2>Users</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Action</th>
+        </tr>
+        <tr th:each="user : ${users}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.username}"></td>
+            <td th:text="${user.role}"></td>
+            <td>
+                <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post">
+                    <input type="submit" value="Delete"/>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+    <h3>Add User</h3>
+    <form action="/admin/users/add" method="post">
+        <input type="text" name="username" placeholder="Username" required/>
+        <input type="password" name="password" placeholder="Password" required/>
+        <select name="role">
+            <option value="ADMIN">Admin</option>
+            <option value="STUDENT">Student</option>
+            <option value="SUPERVISOR">Supervisor</option>
+            <option value="EVALUATOR">Evaluator</option>
+            <option value="COMMITTEE">Committee</option>
+        </select>
+        <input type="submit" value="Add User"/>
+    </form>
+
+    <h2>Deadlines</h2>
+    <table border="1">
+        <tr>
+            <th>Type</th>
+            <th>Date</th>
+        </tr>
+        <tr th:each="deadline : ${deadlines}">
+            <td th:text="${deadline.documentType}"></td>
+            <td th:text="${deadline.deadlineDate}"></td>
+        </tr>
+    </table>
+
+    <h3>Set Deadline</h3>
+    <form action="/admin/deadlines/set" method="post">
+        <select name="type">
+            <option value="PROPOSAL">Proposal</option>
+            <option value="DESIGN">Design</option>
+            <option value="TESTING">Testing</option>
+            <option value="THESIS">Thesis</option>
+        </select>
+        <input type="datetime-local" name="date" required/>
+        <input type="submit" value="Set Deadline"/>
+    </form>
+</body>
+</html>

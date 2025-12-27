@@ -1,12 +1,3 @@
-com\fyp\system\model\Project.class
-com\fyp\system\repository\EvaluationRepository.class
-com\fyp\system\enums\DocumentType.class
-com\fyp\system\repository\ProjectRepository.class
-com\fyp\system\model\User.class
-com\fyp\system\enums\DocumentStatus.class
-com\fyp\system\model\Evaluation.class
-com\fyp\system\model\Document.class
-com\fyp\system\repository\DocumentRepository.class
-com\fyp\system\enums\Role.class
+com\fyp\system\config\CustomAuthenticationSuccessHandler.class
 com\fyp\system\FypManagementSystemApplication.class
-com\fyp\system\repository\UserRepository.class
+com\fyp\system\config\SecurityConfig.class

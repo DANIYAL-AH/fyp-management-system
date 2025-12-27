@@ -4,5 +4,5 @@ public enum DocumentStatus {
     PENDING,
     SUBMITTED,
     APPROVED,
-    REVISION
+    REVISION_REQUESTED
 }

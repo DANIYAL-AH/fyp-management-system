@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -24,5 +27,8 @@ public class Project {
 
     @ManyToOne
     @JoinColumn(name = "supervisor_id")
-    private User supervisor;
+    private Supervisor supervisor;
+
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Student> students = new ArrayList<>();
 }

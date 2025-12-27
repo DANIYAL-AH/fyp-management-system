@@ -7,7 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -20,27 +21,19 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String fileName;
+    @ManyToOne
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
-    private LocalDateTime uploadTimestamp;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DocumentType type;
+
+    @Enumerated(EnumType.STRING)
+    private DocumentStatus status = DocumentStatus.PENDING;
 
     private boolean isLocked = false;
 
-    @Enumerated(EnumType.STRING)
-    private DocumentStatus status;
-
-    @Enumerated(EnumType.STRING)
-    private DocumentType type;
-
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
-
-    @PrePersist
-    protected void onCreate() {
-        if (uploadTimestamp == null) {
-            uploadTimestamp = LocalDateTime.now();
-        }
-    }
+    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL)
+    private List<DocumentVersion> versions = new ArrayList<>();
 }
