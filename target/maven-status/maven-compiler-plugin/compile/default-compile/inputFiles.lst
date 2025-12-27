@@ -1,0 +1,12 @@
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\enums\DocumentStatus.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\enums\DocumentType.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\enums\Role.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\FypManagementSystemApplication.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\model\Document.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\model\Evaluation.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\model\Project.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\model\User.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\repository\DocumentRepository.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\repository\EvaluationRepository.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\repository\ProjectRepository.java
+C:\Users\ktaca\Documents\trae_projects\fyp-management-system\src\main\java\com\fyp\system\repository\UserRepository.java
