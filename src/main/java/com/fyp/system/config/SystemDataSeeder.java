@@ -1,82 +1,123 @@
 package com.fyp.system.config;
 
-import com.fyp.system.enums.DocumentType;
-import com.fyp.system.enums.Role;
-import com.fyp.system.model.*;
-import com.fyp.system.repository.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.fyp.system.entity.user.*;
+import com.fyp.system.repository.user.*;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
 
-@Component
-public class SystemDataSeeder implements CommandLineRunner {
+@Configuration
+public class SystemDataSeeder {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private StudentRepository studentRepository;
-    @Autowired
-    private SupervisorRepository supervisorRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
-    @Autowired
-    private DeadlineRepository deadlineRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Bean
+    CommandLineRunner initDatabase(RoleRepository roleRepository, 
+                                   UserRepository userRepository,
+                                   StudentRepository studentRepository,
+                                   SupervisorRepository supervisorRepository,
+                                   PasswordEncoder passwordEncoder) {
+        return args -> {
+            // 1. Create Roles
+            if (roleRepository.count() == 0) {
+                Arrays.stream(RoleName.values()).forEach(roleName -> {
+                    roleRepository.save(new Role(roleName));
+                });
+            }
 
-    @Override
-    public void run(String... args) throws Exception {
-        if (userRepository.count() > 0) return;
+            // 2. Create System Admin
+            seedUser(userRepository, roleRepository, passwordEncoder, "admin@uet.edu.pk", "System Admin", "Admin@123", RoleName.SYSTEM_ADMIN);
 
-        // 1. Admin
-        Admin admin = new Admin("admin", passwordEncoder.encode("admin123"));
-        userRepository.save(admin);
+            // 3. Create Supervisor with Profile
+            seedSupervisor(userRepository, roleRepository, supervisorRepository, passwordEncoder);
 
-        // 2. Committee
-        Committee committee = new Committee("committee", passwordEncoder.encode("committee123"));
-        userRepository.save(committee);
-
-        // 3. Supervisors
-        Supervisor sup1 = new Supervisor("supervisor1", passwordEncoder.encode("password123"), "AI & ML");
-        Supervisor sup2 = new Supervisor("supervisor2", passwordEncoder.encode("password123"), "IoT & Embedded");
-        supervisorRepository.saveAll(Arrays.asList(sup1, sup2));
-
-        // 4. Project Group & Students
-        Project project = new Project();
-        project.setTitle("Smart Traffic Management System");
-        project.setDescription("AI-based traffic control using computer vision.");
-        project.setSupervisor(sup1);
-        project = projectRepository.save(project);
-
-        Student s1 = new Student("student1", passwordEncoder.encode("password123"));
-        s1.setProject(project);
-        Student s2 = new Student("student2", passwordEncoder.encode("password123"));
-        s2.setProject(project);
-        Student s3 = new Student("student3", passwordEncoder.encode("password123"));
-        s3.setProject(project);
-        Student s4 = new Student("student4", passwordEncoder.encode("password123"));
-        s4.setProject(project);
-
-        studentRepository.saveAll(Arrays.asList(s1, s2, s3, s4));
-
-        // 5. Deadlines
-        createDeadline(DocumentType.PROPOSAL, LocalDateTime.now().plusDays(7));
-        createDeadline(DocumentType.DESIGN, LocalDateTime.now().plusDays(30));
-        createDeadline(DocumentType.TESTING, LocalDateTime.now().plusDays(60));
-        createDeadline(DocumentType.THESIS, LocalDateTime.now().plusDays(90));
-        
-        System.out.println("System Data Seeded Successfully!");
+            // 4. Create Student with Profile
+            seedStudent(userRepository, roleRepository, studentRepository, passwordEncoder);
+        };
     }
 
-    private void createDeadline(DocumentType type, LocalDateTime date) {
-        Deadline deadline = new Deadline();
-        deadline.setDocumentType(type);
-        deadline.setDeadlineDate(date);
-        deadlineRepository.save(deadline);
+    private void seedUser(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, String email, String name, String password, RoleName roleName) {
+        if (!userRepository.existsByEmail(email)) {
+            User user = new User();
+            user.setEmail(email);
+            user.setFullName(name);
+            user.setPasswordHash(passwordEncoder.encode(password));
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
+
+            Role role = roleRepository.findByName(roleName)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+
+            UserRole userRole = new UserRole(user, role);
+            user.getRoles().add(userRole);
+
+            userRepository.save(user);
+            System.out.println("System Admin seeded successfully.");
+        }
+    }
+
+    private void seedSupervisor(UserRepository userRepository, RoleRepository roleRepository, SupervisorRepository supervisorRepository, PasswordEncoder passwordEncoder) {
+        String email = "supervisor@uet.edu.pk";
+        if (!userRepository.existsByEmail(email)) {
+            // 1. Create User
+            User user = new User();
+            user.setEmail(email);
+            user.setFullName("Dr. Supervisor");
+            user.setPasswordHash(passwordEncoder.encode("Supervisor@123"));
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
+
+            Role role = roleRepository.findByName(RoleName.SUPERVISOR)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            
+            UserRole userRole = new UserRole(user, role);
+            user.getRoles().add(userRole);
+
+            // Save User first
+            User savedUser = userRepository.save(user);
+
+            // 2. Create Supervisor Profile
+            Supervisor supervisor = new Supervisor();
+            supervisor.setUser(savedUser);
+            supervisor.setEmployeeId("EMP-001");
+            supervisor.setSpecialization("Artificial Intelligence");
+            
+            supervisorRepository.save(supervisor);
+            System.out.println("✅ Created Profile for Supervisor: " + supervisor.getEmployeeId());
+        }
+    }
+
+    private void seedStudent(UserRepository userRepository, RoleRepository roleRepository, StudentRepository studentRepository, PasswordEncoder passwordEncoder) {
+        String email = "student@uet.edu.pk";
+        if (!userRepository.existsByEmail(email)) {
+            // 1. Create User
+            User user = new User();
+            user.setEmail(email);
+            user.setFullName("Student One");
+            user.setPasswordHash(passwordEncoder.encode("Student@123"));
+            user.setCreatedAt(LocalDateTime.now());
+            user.setUpdatedAt(LocalDateTime.now());
+
+            Role role = roleRepository.findByName(RoleName.STUDENT)
+                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            
+            UserRole userRole = new UserRole(user, role);
+            user.getRoles().add(userRole);
+
+            // Save User first
+            User savedUser = userRepository.save(user);
+
+            // 2. Create Student Profile
+            Student student = new Student();
+            student.setUser(savedUser);
+            student.setRegistrationNumber("2021-CS-101");
+            student.setDepartment("Computer Science");
+            student.setCgpa(3.5);
+            
+            studentRepository.save(student);
+            System.out.println("✅ Created Profile for Student: " + student.getRegistrationNumber());
+        }
     }
 }
